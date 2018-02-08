@@ -26,3 +26,11 @@
 > Java code with your fxml.<br />
 
 **Download:** *http://gluonhq.com/products/scene-builder/*
+
+
+## Install Ghostscript
+> Ghostscript is a software to interpret and convert pdf files.<br />
+> This software is using Ghostscripts pdf -> img convertion and will not run<br />
+> without installing ghostscript.<br />
+
+**Download:** *https://www.ghostscript.com/download/gsdnld.html*
