@@ -5,6 +5,7 @@
 
 #remove everything in the binary folder
 bin/*
+/bin/
 
 #remove all log files
 *.log
