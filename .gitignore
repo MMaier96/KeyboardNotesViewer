@@ -1,1 +1,10 @@
-# binary output folder\nbin/*
+## Java specific gitignore
+
+# remove all .class files
+*.class
+
+#remove everything in the binary folder
+bin/*
+
+#remove all log files
+*.log
