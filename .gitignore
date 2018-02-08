@@ -9,3 +9,10 @@ bin/*
 
 #remove all log files
 *.log
+
+#remove pdf & images folder
+input/*
+/input/
+output/*
+/output/
+
