@@ -8,12 +8,12 @@ Download: http://www.oracle.com/technetwork/java/javase/downloads/index.html
 ### Install Eclipse
 For this project Eclipse Oxygen2 was used
 
-Download: http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/oxygen2
+Download: _ http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/oxygen2 _
 
 ### Install e(fx)clipse Plugin
 E(fx)clipse is an plugin for Eclipse which offers JavaFX functions which are included directly to the IDE.
 
-Download: http://download.eclipse.org/releases/oxygen/
+Download: _http://download.eclipse.org/releases/oxygen/_
 
 ### Install Scene Builder
 An easy Drag&Drop software for developing JavaFX applications is Scene Builder. The common used was published by GLUON.
