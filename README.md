@@ -1,6 +1,6 @@
 # KeyboardNoteViewer
 ## Java 8
-> For this project the minimum JDK version "1.8.0.152" is recommended<br />
+> For this project the minimum JDK version "1.8.0.152" is recommended.<br />
 > To check which version you currently using, go to the cmd<br />
 > and execute *java -version*<br />
 
