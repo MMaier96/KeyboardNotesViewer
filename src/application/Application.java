@@ -1,67 +1,81 @@
 package application;
 
-import java.awt.Image;
-import java.awt.image.RenderedImage;
-import java.util.List;
+import static application.config.ApplicationConfig.APP_HEIGHT;
+import static application.config.ApplicationConfig.APP_TITLE;
+import static application.config.ApplicationConfig.APP_WIDTH;
 
-import javax.imageio.ImageIO;
-
-import java.io.File;
 import java.io.IOException;
 
-import org.ghost4j.document.DocumentException;
-import org.ghost4j.document.PDFDocument;
-import org.ghost4j.renderer.RendererException;
-import org.ghost4j.renderer.SimpleRenderer;
-
-import application.config.AppConfig;
+import application.algorithm.Algorithm;
+import application.config.ApplicationConfig;
+import application.gui.controller.GuiController;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class Application extends javafx.application.Application {
 
 	private String[] arguments;
+	private Algorithm algorithm;
+	private Thread algorithmThread;
+	private FXMLLoader loader;
 	private Stage primaryStage;
-	private AppConfig appConfig;
 	private HBox root;
-	
-	
-	@Override
-	public void start(Stage primaryStage) {
-		loadConfiguration();
-		setPrimaryStage(primaryStage);
-		loadMainWindow();
+
+	public GuiController getController() {
+		return loader.getController();
 	}
 
-	private void loadConfiguration() {
-		appConfig = AppConfig.instance;
-	}
+	private void loadMainWindow() {
+		primaryStage.setTitle(APP_TITLE);
 
-	private void setPrimaryStage(Stage primaryStage) {
-		this.primaryStage = primaryStage;
+		loader = new FXMLLoader();
+		try {
+			root = loader.load(getClass().getResource("gui/models/ApplicationModel.fxml").openStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		Scene scene = new Scene(root, APP_WIDTH, APP_HEIGHT);
+		primaryStage.setScene(scene);
+		primaryStage.setFullScreen(ApplicationConfig.APP_FULLSCREEN);
+		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+
+			@Override
+			public void handle(WindowEvent event) {
+				System.exit(0);
+			}
+		});
+		primaryStage.show();
+//		startGeneticAlgorithm();
 	}
 
 	public void setArguments(String... arguments) {
 		this.arguments = arguments;
 	}
 
-	private void loadMainWindow() {
-		
-		try {
-			root = FXMLLoader.load(getClass().getResource("gui/application.fxml"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Scene scene = new Scene(root, appConfig.windowWidth, appConfig.windowWidth);
-		primaryStage.setScene(scene);
-		primaryStage.setFullScreen(appConfig.startAsFullScreen);
-		primaryStage.show();
+	private void setPrimaryStage(Stage primaryStage) {
+		this.primaryStage = primaryStage;
+	}
+
+	@Override
+	public void start(Stage primaryStage) {
+		setPrimaryStage(primaryStage);
+		loadMainWindow();
 	}
 
 	public void startApplication() {
 		launch(arguments);
+
 	}
 
+	public void startGeneticAlgorithm() {
+		algorithm = new Algorithm(this);
+		algorithmThread = new Thread(algorithm);
+		algorithmThread.setDaemon(true);
+		algorithmThread.start();
+	}
 }

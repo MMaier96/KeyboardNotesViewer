@@ -14,7 +14,7 @@ import org.ghost4j.document.PDFDocument;
 import org.ghost4j.renderer.RendererException;
 import org.ghost4j.renderer.SimpleRenderer;
 
-import application.config.AppConfig;
+import application.config.ApplicationConfig;
 
 public class PDFToIMGConverter implements Runnable {
 
@@ -37,10 +37,10 @@ public class PDFToIMGConverter implements Runnable {
 			instanceSuccess = false;
 			return;
 		}
-		this.outputDirectory = new File(AppConfig.instance.outputFolderName + name + "/");
+		this.outputDirectory = new File(ApplicationConfig.OUTPUT_FOLDER + "/" + name + "/");
 		this.renderer = new SimpleRenderer();
 		this.pdfDocument = new PDFDocument();
-		this.renderer.setResolution(AppConfig.instance.pdfResolution);
+		this.renderer.setResolution(ApplicationConfig.PDF_RESOLUTION);
 	}
 
 	@Override
@@ -79,6 +79,7 @@ public class PDFToIMGConverter implements Runnable {
 			logger.info("error occurred on saving images of pdf file ["+ pdfDocument +"] to [" + outputDirectory + "] ...");
 			return;
 		}
+		logger.info("finished saving images of pdf file ["+ pdfDocument +"] to [" + outputDirectory + "] ...");
 	}
 
 	private boolean saveRenderedImages() {
@@ -86,7 +87,7 @@ public class PDFToIMGConverter implements Runnable {
 		File outputFile;
 		for (Image image : images) {
 			try {
-				outputFile = new File(AppConfig.instance.outputFolderName + name + "/" + (prefixCounter++) + ".png");
+				outputFile = new File(ApplicationConfig.OUTPUT_FOLDER + "/"+ name + "/" + (prefixCounter++) + ".png");
 				ImageIO.write((RenderedImage) image, "png", outputFile);
 			} catch (IOException e) {
 				logger.error(e.getMessage());

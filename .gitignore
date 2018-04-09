@@ -1,18 +1,1 @@
-## Java specific gitignore
-
-# remove all .class files
-*.class
-
-#remove everything in the binary folder
-bin/*
 /bin/
-
-#remove all log files
-*.log
-
-#remove pdf & images folder
-input/*
-/input/
-output/*
-/output/
-
