@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import application.config.AppConfig;
+import application.config.ApplicationConfig;
 
 public class PDFFilesSynchronizer {
 
@@ -17,19 +17,21 @@ public class PDFFilesSynchronizer {
 	private boolean instanceSuccess = true;
 	
 	public PDFFilesSynchronizer() {
-		File directory = new File(AppConfig.instance.inputFolderName);
+		File directory = new File(ApplicationConfig.INPUT_FOLDER);
+
 		if (!directory.exists()) {
 			instanceSuccess = false;
-			logger.error("the input folder [" + AppConfig.instance.inputFolderName + "] does not exist!");
-			logger.error("the input folder [" + AppConfig.instance.inputFolderName + "] does not exist!");
+			logger.error("the input folder [" + ApplicationConfig.INPUT_FOLDER + "] does not exist!");
+			logger.error("the input folder [" + ApplicationConfig.INPUT_FOLDER + "] does not exist!");
 			return;
 		}
+		
 		files = Arrays.asList(directory.listFiles());		
 	}
 	
 	public void startSynchronising() {
 		if (!instanceSuccess) {
-			logger.error("the input folder [" + AppConfig.instance.inputFolderName + "] does not exist! Skipping convertion");
+			logger.error("the input folder [" + ApplicationConfig.INPUT_FOLDER + "] does not exist! Skipping convertion");
 			return;
 		}
 		for (File file : files) {
