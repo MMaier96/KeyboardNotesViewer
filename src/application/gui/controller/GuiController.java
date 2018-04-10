@@ -18,6 +18,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public class GuiController {
 
@@ -30,8 +31,13 @@ public class GuiController {
 	HBox pdfListBox;
 	@FXML
 	HBox imageBox;
+	
+	@FXML
+	HBox menu;
 	@FXML
 	ImageView imageView;
+	@FXML
+	HBox toggle;
 
 	@FXML
 	public void initialize() {
@@ -45,6 +51,7 @@ public class GuiController {
 		imageView.setPreserveRatio(true);
 
 		ListView<String> list = new ListView<String>();
+		list.setPrefWidth(300);
 		list.setOnMouseClicked(new EventHandler<Event>() {
 
 			@Override
@@ -104,5 +111,25 @@ public class GuiController {
 				}
 			}
 		});
+	}
+	
+	@FXML
+	public void toggleMenu() {
+		System.out.println("toggled: " + pdfListBox.getPrefWidth());
+		if (pdfListBox.getPrefWidth() == 0) {
+			pdfListBox.setMinWidth(285);
+			pdfListBox.setPrefWidth(285);
+			pdfListBox.setMaxWidth(285);
+			menu.setMinWidth(300);
+			menu.setPrefWidth(300);
+			menu.setMaxWidth(300);
+		}else {
+			pdfListBox.setMinWidth(0);
+			pdfListBox.setPrefWidth(0);
+			pdfListBox.setMaxWidth(0);
+			menu.setMinWidth(15);
+			menu.setPrefWidth(15);
+			menu.setMaxWidth(15);
+		}
 	}
 }

@@ -9,6 +9,8 @@ import java.io.IOException;
 import application.algorithm.Algorithm;
 import application.config.ApplicationConfig;
 import application.gui.controller.GuiController;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -42,6 +44,14 @@ public class Application extends javafx.application.Application {
 		Scene scene = new Scene(root, APP_WIDTH, APP_HEIGHT);
 		primaryStage.setScene(scene);
 		primaryStage.setFullScreen(ApplicationConfig.APP_FULLSCREEN);
+		
+		primaryStage.maximizedProperty().addListener(new ChangeListener<Boolean>() {
+
+		    @Override
+		    public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+		        primaryStage.setFullScreen(true);
+		    }
+		});
 		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 
 			@Override
