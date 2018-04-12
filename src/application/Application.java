@@ -1,91 +1,105 @@
 package application;
 
+import static application.config.ApplicationConfig.APP_FULLSCREEN;
 import static application.config.ApplicationConfig.APP_HEIGHT;
-import static application.config.ApplicationConfig.APP_TITLE;
 import static application.config.ApplicationConfig.APP_WIDTH;
 
 import java.io.IOException;
 
-import application.algorithm.Algorithm;
-import application.config.ApplicationConfig;
-import application.gui.controller.GuiController;
+import application.gui.controller.LoaderController;
+import application.pdf.PDFSynchronizerThread;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import javafx.stage.StageStyle;
 
 public class Application extends javafx.application.Application {
 
 	private String[] arguments;
-	private Algorithm algorithm;
-	private Thread algorithmThread;
 	private FXMLLoader loader;
+	private VBox loaderRoot;
+	private HBox mainRoot;
+	private PDFSynchronizerThread modification;
+	private Thread modificationThread;
 	private Stage primaryStage;
-	private HBox root;
 
-	public GuiController getController() {
-		return loader.getController();
+	public LoaderController getLoaderController() {
+		Object controller = loader.getController();
+		if (controller instanceof LoaderController) {
+			return loader.getController();
+		}
+		return null;
 	}
 
-	private void loadMainWindow() {
-		primaryStage.setTitle(APP_TITLE);
+	public Stage getPrimeryStage() {
+		return primaryStage;
+	}
 
-		loader = new FXMLLoader();
+	private void loadLoaderWindow() {
 		try {
-			root = loader.load(getClass().getResource("gui/models/ApplicationModel.fxml").openStream());
+			loader = new FXMLLoader();
+			loaderRoot = loader.load(getClass().getResource("gui/models/LoaderWindow.fxml").openStream());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		Scene scene = new Scene(root, APP_WIDTH, APP_HEIGHT);
+		Scene scene = new Scene(loaderRoot, APP_WIDTH, APP_HEIGHT);
 		primaryStage.setScene(scene);
-		primaryStage.setFullScreen(ApplicationConfig.APP_FULLSCREEN);
+		primaryStage.setAlwaysOnTop(true);
+		primaryStage.initStyle(StageStyle.UNDECORATED);
+		primaryStage.show();
 		
+		startGuiModificationThread();
+	}
+
+
+	public void loadMainWindow() {
+		try {
+			loader = new FXMLLoader();
+			mainRoot = loader.load(getClass().getResource("gui/models/MainWindow.fxml").openStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		Scene scene = new Scene(mainRoot, APP_WIDTH, APP_HEIGHT);
+		primaryStage.close();
+		primaryStage = new Stage();
+		primaryStage.setScene(scene);
+		primaryStage.initStyle(StageStyle.DECORATED);
+		primaryStage.setFullScreenExitHint("");
+		primaryStage.setFullScreen(APP_FULLSCREEN);
 		primaryStage.maximizedProperty().addListener(new ChangeListener<Boolean>() {
 
 		    @Override
 		    public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-		        primaryStage.setFullScreen(true);
+		    	primaryStage.setFullScreen(t1);
 		    }
 		});
-		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-
-			@Override
-			public void handle(WindowEvent event) {
-				System.exit(0);
-			}
-		});
 		primaryStage.show();
-//		startGeneticAlgorithm();
 	}
 
 	public void setArguments(String... arguments) {
 		this.arguments = arguments;
 	}
-
-	private void setPrimaryStage(Stage primaryStage) {
-		this.primaryStage = primaryStage;
-	}
-
 	@Override
 	public void start(Stage primaryStage) {
-		setPrimaryStage(primaryStage);
-		loadMainWindow();
+		this.primaryStage = primaryStage;
+
+		loadLoaderWindow();
 	}
 
 	public void startApplication() {
 		launch(arguments);
-
 	}
 
-	public void startGeneticAlgorithm() {
-		algorithm = new Algorithm(this);
-		algorithmThread = new Thread(algorithm);
-		algorithmThread.setDaemon(true);
-		algorithmThread.start();
+	public void startGuiModificationThread() {
+		modification = new PDFSynchronizerThread(this);
+		modificationThread = new Thread(modification);
+		modificationThread.setDaemon(true);
+		modificationThread.start();
 	}
 }

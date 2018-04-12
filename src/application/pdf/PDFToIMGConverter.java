@@ -8,78 +8,85 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.apache.log4j.Logger;
 import org.ghost4j.document.DocumentException;
 import org.ghost4j.document.PDFDocument;
 import org.ghost4j.renderer.RendererException;
 import org.ghost4j.renderer.SimpleRenderer;
 
+import application.Application;
 import application.config.ApplicationConfig;
+import application.gui.controller.LoaderController;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 
-public class PDFToIMGConverter implements Runnable {
+public class PDFToIMGConverter{
 
-	private static Logger logger = Logger.getLogger(PDFToIMGConverter.class);
 	
-	private String name;
-	private File inputFile;
-	private File outputDirectory;
+	private LoaderController controller;
 	private List<Image> images;
+	private File inputFile;
+	private boolean instanceSuccess = true;
+	private String name;
+	private File outputDirectory;
 	private PDFDocument pdfDocument;
 	private SimpleRenderer renderer;
-	private boolean instanceSuccess = true;
 
-	public PDFToIMGConverter(String path) {
-		this.inputFile = new File(path);
-		if (inputFile.getName().contains(".")) {
-			this.name = inputFile.getName().split("\\.")[0];
-		}else {
-			logger.error("the file [" + inputFile.getName() + "] has no or a wrong file ending! ONLY PDF SUPPORTED!" );
-			instanceSuccess = false;
-			return;
-		}
-		this.outputDirectory = new File(ApplicationConfig.OUTPUT_FOLDER + "/" + name + "/");
-		this.renderer = new SimpleRenderer();
-		this.pdfDocument = new PDFDocument();
-		this.renderer.setResolution(ApplicationConfig.PDF_RESOLUTION);
+	public PDFToIMGConverter(String path, Application application) {
+		inputFile = new File(path);
+		controller = application.getLoaderController();
+		if(checkFileExists()) return;
+		outputDirectory = new File(ApplicationConfig.OUTPUT_FOLDER + "/" + name + "/");
+		renderer = new SimpleRenderer();
+		pdfDocument = new PDFDocument();
+		renderer.setResolution(ApplicationConfig.PDF_RESOLUTION);
 	}
 
-	@Override
-	public void run() {	
-		if (!instanceSuccess) {
-			logger.error("because of wrong file ending of [" + inputFile.getName() + "] the convertion was skipped!" );
-			return;
+	private boolean checkFileExists() {
+		if (inputFile.getName().contains(".")) {
+			name = inputFile.getName().split("\\.")[0];
+		}else {
+			printToConsole("the file [" + inputFile.getName() + "] has no or a wrong file ending! ONLY PDF SUPPORTED!" );
+			instanceSuccess = false;
+			return true;
 		}
-		
-		logger.info("checking weather input file exists ...");
-		if (!inputFile.exists()) {
-			logger.info("the file [" + inputFile +"] does not exist. Skipped converting to images");
-			return;
-		}
+		return false;
+	}
 
-		logger.info("checking weather output directory exists ...");
-		if (!outputDirectory.mkdirs()) {
-			logger.info("the output directory [" + outputDirectory +"] already exist. Skipped converting to images");
-			return;
+	private boolean loadPDFFile() {
+		try {
+			pdfDocument.load(inputFile);
+		} catch (IOException e) {
+			printToConsole(e.getMessage());
+			return false;
 		}
+		return true;
+	}
 
-		logger.info("loading pdf file ["+ inputFile +"] ...");
-		if (!loadPDFFile()) {
-			logger.info("error occurred on loading the pdf file ["+ inputFile +"] ...");
-			return;
+	private void printToConsole(String msg) {
+		Platform.runLater(new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				controller.printConsole("\t" + msg);
+				return null;
+			}
+			
+		});
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		
-		logger.info("start rendering pdf file ["+ pdfDocument +"] ...");
-		if (!renderPDFFile()) {
-			logger.info("error occurred on rendering pdf file ["+ pdfDocument +"] ...");
-			return;
+	}
+
+	private boolean renderPDFFile() {
+		try {
+			images = renderer.render(pdfDocument);
+		} catch (IOException | RendererException | DocumentException e) {
+			printToConsole(e.getMessage());
+			return false;
 		}
-		
-		logger.info("start saving images of pdf file ["+ pdfDocument +"] to [" + outputDirectory + "] ...");
-		if (!saveRenderedImages()) {
-			logger.info("error occurred on saving images of pdf file ["+ pdfDocument +"] to [" + outputDirectory + "] ...");
-			return;
-		}
-		logger.info("finished saving images of pdf file ["+ pdfDocument +"] to [" + outputDirectory + "] ...");
+		return true;
 	}
 
 	private boolean saveRenderedImages() {
@@ -90,30 +97,42 @@ public class PDFToIMGConverter implements Runnable {
 				outputFile = new File(ApplicationConfig.OUTPUT_FOLDER + "/"+ name + "/" + (prefixCounter++) + ".png");
 				ImageIO.write((RenderedImage) image, "png", outputFile);
 			} catch (IOException e) {
-				logger.error(e.getMessage());
+				printToConsole(e.getMessage());
 				return false;
 			}
 		}
 		return true;
 	}
-
-	private boolean renderPDFFile() {
-		try {
-			images = renderer.render(pdfDocument);
-		} catch (IOException | RendererException | DocumentException e) {
-			logger.error(e.getMessage());
-			return false;
+	
+	public void startConvertion() {	
+		if (!instanceSuccess) {
+			printToConsole("because of wrong file ending of [" + inputFile.getName() + "] the convertion was skipped!" );
+			return;
 		}
-		return true;
-	}
 
-	private boolean loadPDFFile() {
-		try {
-			pdfDocument.load(inputFile);
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-			return false;
+		printToConsole("checking weather output directory already exists ...");
+		if (!outputDirectory.mkdirs()) {
+			printToConsole("the output directory [" + outputDirectory +"] already exist. Skipped converting to images");
+			return;
 		}
-		return true;
+
+		printToConsole("loading pdf file ["+ inputFile.getName() +"] ...");
+		if (!loadPDFFile()) {
+			printToConsole("error occurred on loading the pdf file ["+ inputFile.getName() +"] ...");
+			return;
+		}
+		
+		printToConsole("start rendering pdf file ["+ inputFile.getName() +"] ...");
+		if (!renderPDFFile()) {
+			printToConsole("error occurred on rendering pdf file ["+ inputFile.getName() +"] ...");
+			return;
+		}
+		
+		printToConsole("start saving images of pdf file ["+ inputFile.getName() +"] to [" + outputDirectory + "] ...");
+		if (!saveRenderedImages()) {
+			printToConsole("error occurred on saving images of pdf file ["+ inputFile.getName() +"] to [" + outputDirectory + "] ...");
+			return;
+		}
+		printToConsole("finished saving images of pdf file ["+ inputFile.getName() +"] to [" + outputDirectory + "] ...");
 	}
 }
