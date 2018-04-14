@@ -64,7 +64,7 @@ public class MainWindowController {
 							return;
 						}
 						try {
-							image = new Image(new FileInputStream("output/" + selectedItem + "/0.png"));
+							image = new Image(new FileInputStream(ApplicationConfig.OUTPUT_FOLDER + "/" + selectedItem + "/0.png"));
 						} catch (FileNotFoundException e) {
 							e.printStackTrace();
 						}
@@ -100,14 +100,14 @@ public class MainWindowController {
 				if (pageNumber == -1) {
 					return;
 				}
-				int pages = new File("output/" + list.getSelectionModel().getSelectedItem()).listFiles().length;
+				int pages = new File(ApplicationConfig.OUTPUT_FOLDER + "/" + list.getSelectionModel().getSelectedItem()).listFiles().length;
 				if (event.getCode().equals(KeyCode.LEFT)) {
 					if (pageNumber == 0) {
 						return;
 					}
 					try {
 						imageView.setImage(new Image(new FileInputStream(
-								"output/" + list.getSelectionModel().getSelectedItem() + "/" + --pageNumber + ".png")));
+								ApplicationConfig.OUTPUT_FOLDER + "/" + list.getSelectionModel().getSelectedItem() + "/" + --pageNumber + ".png")));
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 					}
@@ -117,7 +117,7 @@ public class MainWindowController {
 					}
 					try {
 						imageView.setImage(new Image(new FileInputStream(
-								"output/" + list.getSelectionModel().getSelectedItem() + "/" + ++pageNumber + ".png")));
+								ApplicationConfig.OUTPUT_FOLDER + "/" + list.getSelectionModel().getSelectedItem() + "/" + ++pageNumber + ".png")));
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 					}

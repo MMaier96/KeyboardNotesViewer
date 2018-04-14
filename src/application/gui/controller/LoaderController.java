@@ -44,4 +44,9 @@ public class LoaderController {
 		
 		application.loadMainWindow();
 	}
+	
+	@FXML
+	public void closeLoader() {
+		System.exit(0);
+	}
 }

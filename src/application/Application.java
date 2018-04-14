@@ -50,7 +50,6 @@ public class Application extends javafx.application.Application {
 		Scene scene = new Scene(loaderRoot, APP_WIDTH, APP_HEIGHT);
 		primaryStage.setScene(scene);
 		primaryStage.setAlwaysOnTop(true);
-		primaryStage.initStyle(StageStyle.UNDECORATED);
 		primaryStage.show();
 		
 		startGuiModificationThread();
